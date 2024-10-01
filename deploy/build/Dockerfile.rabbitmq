@@ -1,0 +1,25 @@
+FROM rabbitmq:3.11-management
+
+RUN apt-get update && \
+apt-get install -y curl
+
+# Install dependencies for Elixir (Erlang should already be installed via RabbitMQ image)
+RUN apt-get update && apt-get install -y curl gnupg2 build-essential
+
+# Install Elixir
+# RUN curl -fsSL https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc | apt-key add - \
+#     && echo "deb https://packages.erlang-solutions.com/ubuntu $(lsb_release -cs) contrib" | tee /etc/apt/sources.list.d/erlang-solutions.list \
+#     && apt-get update \
+#     && apt-get install -y elixir
+RUN apt-get update && apt-get install -y elixir
+
+# # Verify Elixir installation
+RUN elixir --version
+
+RUN curl -L -o elixir-1.14.0.ez https://github.com/noxdafox/rabbitmq-message-deduplication/releases/download/0.6.2/elixir-1.14.0.ez && \
+mv elixir-1.14.0.ez plugins/
+
+RUN curl -L -o rabbitmq_message_deduplication-0.6.2.ez https://github.com/noxdafox/rabbitmq-message-deduplication/releases/download/0.6.2/rabbitmq_message_deduplication-0.6.2.ez && \
+mv rabbitmq_message_deduplication-0.6.2.ez plugins/
+
+RUN rabbitmq-plugins enable rabbitmq_message_deduplication
